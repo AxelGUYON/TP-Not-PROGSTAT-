@@ -1,0 +1,44 @@
+---
+title: "TP Noté GUYON Axel"
+author: "GUYON Axel"
+date: "2024-12-18"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Examen Programmation Statistique
+#### Pré requis
+```{r}
+setwd("/media/axguyon/PHILIPS UFD/2A/Programmation Statistique/TP Noté/")
+library(tidyverse)
+library(ggplot2)
+```
+####Lecture des données
+```{r}
+fichiers<-list.files(path="/media/axguyon/PHILIPS UFD/2A/Programmation Statistique/TP Noté/exam_data/exam_data/")
+chemin<-"/media/axguyon/PHILIPS UFD/2A/Programmation Statistique/TP Noté/exam_data/exam_data/"
+fichiers<-paste0(chemin,fichiers)
+
+zidane<-function(fichier){ 
+données<-read.csv(fichier,header=TRUE,stringsAsFactors=FALSE)
+return(données)
+} 
+
+données<-map_df(fichiers,zidane) 
+#J'utilise map df pour que ça me renvoie un data frame
+view(données)
+```
+####Visualisation des données
+```{r}
+#Ici, je vais écrire les dates de début et de fin de chaque confinement en France, pour les indiquer sur le graphique et voir leur conséquence sur le nombre de ventes
+periodes<-data.frame(debut=as.Date(c("2020-03-17","2020-10-30","2021-04-03")),fin=as.Date(c("2020-05-11", "2020-12-15", "2021-05-03")),label = c("confinement", "confinement", "confinement"))
+
+données$date<-as.Date(données$date)
+données%>% 
+  ggplot(aes(date,nb_de_ventes))+
+  geom_smooth(col="black")+
+  geom_rect(data=periodes,aes(xmin=debut,xmax=fin,ymin=-Inf,ymax=Inf),inherit.aes=FALSE,fill="orange",alpha=0.5)+ 
+  geom_text(data=periodes,aes(x=debut,y=max(données$nb_de_ventes),label=label),hjust=0,angle=-90,size=5,alpha=1,color = "darkorange")+
+#Ici j'utilise alpha pour réduire l'intensité de la couleur, de sorte à ce que la ligne soit toujours visible
+  labs(title="Graphique représentant l'évolution du nombre de ventes au cours du temps",x="Date",y="Nombre de ventes")
+```
